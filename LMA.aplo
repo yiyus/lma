@@ -1,0 +1,24 @@
+ LMA←{⍺←⊢ ⋄ p←⊃w←⊆⍵ ⋄ 0::⎕SIGNAL ⎕EN                    ⍝ pass signals
+
+     n←'d',¨'ini' 'inc' 'dec' 'max' 'min'               ⍝ damping
+     n←('isrg',⍨¨⊂'tol'),n                              ⍝ tolerances
+     nc←'tols' 'ddec' 'dmin'                            ⍝ computed defaults
+     nr←'iter' 'sse' 'rel' 'dnorm' 'p'                  ⍝ results
+     c←(                                                ⍝ default config
+         toli:1000000 ⋄ tolr:⎕CT ⋄ tolg:0.01                ⍝     tolerances
+         dini:0.01 ⋄ dinc:5 ⋄ dmax:÷⎕CT                 ⍝     damping
+         p0:p ⋄ verbose:0                               ⍝     initial parameters and logging
+     )
+     F←{1((⊂6 0⍕↑),12 ¯5∘⍕¨⍤↓)⍵} ⋄ P←{⎕←F ⍵}            ⍝ format and print
+     DF←{⍕'sp',¨':',¨(⊂2 5)⌷F ⍵}                        ⍝ display form and set results
+
+     3=⎕NC'⍺⍺':⍺((⍺⍺{⍵.Eval←⍺⍺ ⋄ ⍵}c)∇∇)w               ⍝ ⍺⍺ is Eval function
+     (1<≢w)∧~2|⎕DR⊃⌽w:⍺((⎕NS ⍺⍺(⊃⌽w))∇∇)¯1↓w            ⍝ non numeric extra argument is config
+     2<≢w:⎕SIGNAL 11                                    ⍝ wrong argument
+
+     c.CallBack←⊢ ⋄ c←⎕NS c ⍺⍺ ⋄ c.dnorm←1⊣⍣(1=≢w)⊃⌽w   ⍝ default callback and actual config
+     _←c ⎕VSET(↑nc)(⎕VGET(↑nc)c.(tolr,÷dinc dmax))      ⍝ computed defaults
+     c←⍺{(3=⎕NC'⍺⍺')∧0≠⍵.⎕NC'Left':⍵ ⋄ ⍵.Left←⍺⍺ ⋄ ⍵}c  ⍝ left arg
+     CB←{c.CallBack c ⎕VSET(↑nr)⍵}⊣P⍣(c.verbose≢0)       ⍝ callback function
+     c⊣c.⎕DF DF(c ⎕VGET↑n)c.(Left∘Eval)LM CB c.dnorm p   ⍝ return namespace
+ }

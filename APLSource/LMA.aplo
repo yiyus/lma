@@ -5,7 +5,7 @@
      nc←'ddec' 'dmin'                                   ⍝ computed defaults
      nr←'iter' 'sse' 'rel' 'dnorm' 'p'                  ⍝ results
      c←(                                                ⍝ default config
-         toli:1000 ⋄ tols:⎕CT ⋄ tolr:⎕CT ⋄ tolg:0.01     ⍝     tolerances
+         toli:1000 ⋄ tols:⎕CT ⋄ tolr:⎕CT ⋄ tolg:0.01    ⍝     tolerances
          dini:0.01 ⋄ dinc:5 ⋄ dmax:÷⎕CT                 ⍝     damping
          p0:p ⋄ verbose:0                               ⍝     initial parameters and logging
      )
@@ -17,8 +17,8 @@
      2<≢w:⎕SIGNAL 11                                    ⍝ wrong argument
 
      c.CallBack←⊢ ⋄ c←c ⎕NS ⍺⍺ ⋄ c.dnorm←1⊣⍣(1=≢w)⊃⌽w   ⍝ default callback and actual config
-     _←c ⎕VSET(↑nc)(c ⎕VGET(↑nc)c.(÷dinc dmax))          ⍝ computed defaults
+     _←c ⎕VSET(↑nc)(c ⎕VGET(↑nc)c.(÷dinc dmax))         ⍝ computed defaults
      c←⍺{(3=⎕NC'⍺⍺')∧0≠⍵.⎕NC'Left':⍵ ⋄ ⍵.Left←⍺⍺ ⋄ ⍵}c  ⍝ left arg
-     CB←{c.CallBack c ⎕VSET(↑nr)⍵}⊣P⍣(c.verbose≢0)       ⍝ callback function
-     c⊣c.⎕DF DF(c ⎕VGET↑n)c.(Left∘Eval)LM CB p c.dnorm   ⍝ return namespace
+     CB←{c.CallBack c ⎕VSET(↑nr)⍵}⊣P⍣(c.verbose≢0)      ⍝ callback function
+     c⊣c.⎕DF DF(c ⎕VGET↑n)c.(Left∘Eval)LM CB p c.dnorm  ⍝ return namespace
  }

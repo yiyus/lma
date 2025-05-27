@@ -1,5 +1,5 @@
  Test←{
-     0::⎕SIGNAL ⎕EN
+     0::⎕EM ⎕SIGNAL ⎕EN
      t←()
     ⍝ Tests ability to navigate sharp, narrow valleys and handle situations where the Jacobian
     ⍝ may lead to a locally rank-deficient J^T J matrix (eg. zero diagonal elements), requiring
@@ -46,9 +46,9 @@
              a b c d←⍵ ⋄ r5 r10←5 10*÷2 ⋄ y←(a+10×b)(r5×c-d)(×⍨b-2×c)(r10××⍨a-d)
              y[1 10 0 0 ⋄ 0 0 r5(-r5) ⋄ 0(2×b-2×c)(-2×b-2×c)0 ⋄ (2×r10×a-d)0 0(-2×r10×a-d)]
          }
-         r←(4⍴0)CMP(R P #.LMA(3 ¯1 0 1)(tolr:1E¯30)).p                 ⍝ standard starting point
-         r,←(4⍴0)CMP(R P #.LMA(0 0 0 0)(tolr:1E¯30)).p                 ⍝ solution (convergence at zero step)
-         r,←(4⍴0)CMP(R P #.LMA(1 1 1 1)(tolr:1E¯30)).p                 ⍝ far from solution
+         r←(4⍴0)CMP(R P #.LMA(3 ¯1 0 1)(tols:1E¯30)).p                 ⍝ standard starting point
+         r,←(4⍴0)CMP(R P #.LMA(0 0 0 0)(tols:1E¯30)).p                 ⍝ solution (convergence at zero step)
+         r,←(4⍴0)CMP(R P #.LMA(1 1 1 1)(tols:1E¯30)).p                 ⍝ far from solution
          r
      }
     ⍝ Tests LMA's performance in minimizing a classic non-linear function characterized by
@@ -66,11 +66,11 @@
      }
     ⍝ Check that algorithm finishes on termination conditions
      t.Terminate←{
-         r←(R #.Rosenbrock #.LMA(0 0)(tolr:0)).(iter>toli)             ⍝ number of iterations
-         r,←(R #.Rosenbrock #.LMA(0 0)(tols:0)).(rel<tolr)             ⍝ relative change
-         r,←(R #.Rosenbrock #.LMA(0 0)(tolr:0 ⋄ dmax:1000000)).dnorm>1000000   ⍝ maximum damping
+         r←(R #.Rosenbrock #.LMA(0 0)(tols:0 ⋄ tolr:0)).(iter>toli)              ⍝ number of iterations
+         r,←(R #.Rosenbrock #.LMA(0 0)(tols:0)).(rel<tolr)                       ⍝ relative change
+         r,←(R #.Rosenbrock #.LMA(0 0)(tols:0 ⋄ dmax:1000000)).((dnorm>1000000)∧rel=0)   ⍝ maximum damping
          r
      }
      ⍺←0.000001 ⋄ tol←⍺ ⋄ CMP←{tol>|⍺-⍵} ⋄ R←{⎕←(10↑''),⍵.((6 0⍕iter),(12 ¯5⍕sse),p) ⋄ ⍵}
-     (t ⎕NS'tol' 'CMP' 'R'){⎕←⍵ ⋄ 0∊⍺⍎⍵,'⍬':⎕SIGNAL 8 ⋄ _←0}¨(↓t.⎕NL 3)⊣⍣(⍵≡'*')⊆⍵
+     (t ⎕NS'tol' 'CMP' 'R'){⎕←⍵ ⋄ 0∊⍺⍎⍵,'⍬':('TEST FAILED: ',⍵)⎕SIGNAL 8 ⋄ _←0}¨(↓t.⎕NL 3)⊣⍣(⍵≡'*')⊆⍵
  }

@@ -1,12 +1,12 @@
- LM←{ti ts tr tg d0 di dd dx dn←⍺ ⋄ d p←⍵               ⍝ Levenberg–Marquardt algorithm
+ LM←{ti ts tr tg d0 di dd dx dn←⍺ ⋄ p d←⍵               ⍝ Levenberg–Marquardt algorithm
 
      D←((dx-d0)×dn-⍨⊢)÷(d0-dn)×dx-⊢                     ⍝ damping factor normalization(λ)
      E←⍺⍺{s←+.×⍨⊃y j←⍺⍺ ⍵ ⋄ s ⍵ y j}                    ⍝ eval(p): sum(error²), parameters, residual, jacobian
      A←{s p y j←⍵ ⋄ s p,(t+.×j)(y+.×⍨t←⍉j)}             ⍝ accept(EG output): sum(error²), parameters, JtJ, Jty
 
      T←{                                                ⍝ try guess(λ)
-         r⊢←0 ⋄ 11::dx⌊⍵×di ⋄ d⊢←D ⍵                    ⍝     bad guess if domain error
-         ∆p←jy⌹jj+⍺×⍤1⊢⍵×dj←⎕CT⌈1 1⍉jj                  ⍝     change of parameters
+         r⊢←0 ⋄ 11::dx⌊⍵×di ⋄ b←1-÷1⌈d⊢←D ⍵             ⍝     bad guess if domain error
+         ∆p←jy⌹jj+⍺×⍤1⊢⍵×dj←(⎕CT+b-⎕CT×b)⌈1 1⍉jj        ⍝     change of parameters with adaptive floor
          s0←2÷⍨∆p+.×jy+∆p×⍵×dj                          ⍝     predicted error decrement
          s1←s-⊃g←E⊢q←p-∆p                               ⍝     actual error decrement
          r⊢←(p(-÷⍥(+.×⍨)⊣)q)⌊|s1÷s                      ⍝     relative change in parameters or residuals
@@ -18,6 +18,6 @@
          _←⍺⍺(i⊢←i+1)s r d p                            ⍝     call user function
          (ti<i)∨(dx∧.=⍺ ⍵)∨(ts>s)∨(r>0)∧tr>r            ⍝     iterations, max damping, residual, not changing
      }
-     i r←0 ⋄ _←⍵⍵ i s r d p⊣s p jj jy←A E⊃⌽⍵            ⍝ init
+     i r←0 ⋄ _←⍵⍵ i s r d p⊣s p jj jy←A E p             ⍝ init
      i s r d p⊣(∘.=⍨⍳≢p)T⍣C{11::dx ⋄ D⍣¯1⊢⍵}d           ⍝ return iterations, sse, change, norm damping, parameters
  }

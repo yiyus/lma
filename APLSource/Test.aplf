@@ -1,4 +1,5 @@
  Test←{
+     0::⎕SIGNAL ⎕EN
      t←()
     ⍝ Tests ability to navigate sharp, narrow valleys and handle situations where the Jacobian
     ⍝ may lead to a locally rank-deficient J^T J matrix (eg. zero diagonal elements), requiring
@@ -71,5 +72,5 @@
          r
      }
      ⍺←0.000001 ⋄ tol←⍺ ⋄ CMP←{tol>|⍺-⍵} ⋄ R←{⎕←(10↑''),⍵.((6 0⍕iter),(12 ¯5⍕sse),p) ⋄ ⍵}
-     (t ⎕NS'tol' 'CMP' 'R'){⎕←⍵ ⋄ 0∊⍺⍎⍵,'⍬':⎕SIGNAL 8 ⋄ _←0}¨↓t.⎕NL 3
+     (t ⎕NS'tol' 'CMP' 'R'){⎕←⍵ ⋄ 0∊⍺⍎⍵,'⍬':⎕SIGNAL 8 ⋄ _←0}¨(↓t.⎕NL 3)⊣⍣(⍵≡'*')⊆⍵
  }

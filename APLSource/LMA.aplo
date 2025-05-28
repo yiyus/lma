@@ -3,13 +3,13 @@
      n←'d',¨'ini' 'inc' 'dec' 'max' 'min'               ⍝ damping
      n←('isrg',⍨¨⊂'tol'),n                              ⍝ tolerances
      nc←'ddec' 'dmin'                                   ⍝ computed defaults
-     nr←'iter' 'sse' 'rel' 'dnorm' 'p'                  ⍝ results
+     nr←'iter' 'ssr' 'rel' 'dnorm' 'p'                  ⍝ results
      c←(                                                ⍝ default config
          toli:1000 ⋄ tols:⎕CT ⋄ tolr:⎕CT ⋄ tolg:0.01    ⍝     tolerances
          dini:0.01 ⋄ dinc:5 ⋄ dmax:÷⎕CT                 ⍝     damping
          p0:p ⋄ verbose:0                               ⍝     initial parameters and logging
      )
-     F←{1((⊂6 0⍕↑),12 ¯5∘⍕¨⍤↓)⍵} ⋄ P←{⎕←F ⍵}            ⍝ format and print
+     F←{1((⊂6 0⍕↑),12 ¯5∘⍕¨⍤↓)⍵} ⋄ P←{⎕←F ⍵ ⋄ ⍵}        ⍝ format and print
      DF←{⍕'sp',¨':',¨(⊂2 5)⌷F ⍵}                        ⍝ display form and set results
 
      3=⎕NC'⍺⍺':⍺((⍺⍺{⍵.Eval←⍺⍺ ⋄ ⍵}c)∇∇)w               ⍝ ⍺⍺ is Eval function
@@ -18,7 +18,6 @@
 
      c.CallBack←⊢ ⋄ c←c ⎕NS ⍺⍺ ⋄ c.dnorm←1⊣⍣(1=≢w)⊃⌽w   ⍝ default callback and actual config
      _←c ⎕VSET(↑nc)(c ⎕VGET(↑nc)c.(÷dinc dmax))         ⍝ computed defaults
-     c←⍺{(3=⎕NC'⍺⍺')∧0≠⍵.⎕NC'Left':⍵ ⋄ ⍵.Left←⍺⍺ ⋄ ⍵}c  ⍝ left arg
-     CB←{c.CallBack c ⎕VSET(↑nr)⍵}⊣P⍣(c.verbose≢0)      ⍝ callback function
-     c⊣c.⎕DF DF(c ⎕VGET↑n)c.(Left∘Eval)LM CB p c.dnorm  ⍝ return namespace
+     CB←⍺{⍺⍺ c.CallBack c ⎕VSET(↑nr)⍵}P⍣(c.verbose≢0)   ⍝ callback function
+     c⊣c.⎕DF DF(c ⎕VGET↑n)(⍺∘c.Eval)LM CB p c.dnorm     ⍝ return namespace
  }

@@ -19,5 +19,5 @@
          (ti<i)∨(dx∧.=⍺ ⍵)∨(ts>s)∨(r>0)∧tr>r            ⍝     iterations, max damping, residual, not changing
      }
      i r←0 ⋄ _←⍵⍵ i s r d p⊣s p jj jy←A E p             ⍝ init
-     i s r d p⊣(∘.=⍨⍳≢p)T⍣C{11::dx ⋄ D⍣¯1⊢⍵}d           ⍝ return iterations, sse, change, norm damping, parameters
+     i s r d p⊣(∘.=⍨⍳≢p)T⍣C{11::dx ⋄ D⍣¯1⊢⍵}d           ⍝ return iterations, ssr, change, norm damping, parameters
  }

@@ -11,8 +11,8 @@
          r,←3 0.5 CMP(R B #.LMA 1 1).p                                 ⍝ singular Jt J
          r,←3 0.5 CMP(R B #.LMA 0 0).p                                 ⍝ another tricky point
          r,←3 0.5 CMP(R B #.LMA 1 ¯2).p                                ⍝ different quadrant
-         r,←(B #.LMA(2 2)(toli:1)).sse>(R B #.LMA 2 2).sse             ⍝ closer to another local minimum
-         r,←(B #.LMA(¯1 1)(toli:1)).sse>(R B #.LMA ¯1 1).sse           ⍝ closer to another local minimum
+         r,←(B #.LMA(2 2)(toli:1)).ssr>(R B #.LMA 2 2).ssr             ⍝ closer to another local minimum
+         r,←(B #.LMA(¯1 1)(toli:1)).ssr>(R B #.LMA ¯1 1).ssr           ⍝ closer to another local minimum
          r
      }
     ⍝ Assesses capability to follow a long, narrow, curving multi-dimensional valley, testing
@@ -70,6 +70,6 @@
          r,←(R #.Rosenbrock #.LMA(0 0)(tols:0 ⋄ dmax:1000000)).((dnorm>1000000)∧rel=0)   ⍝ maximum damping
          r
      }
-     ⍺←0.000001 ⋄ tol←⍺ ⋄ CMP←{tol>|⍺-⍵} ⋄ R←{⎕←(10↑''),⍵.((6 0⍕iter),(12 ¯5⍕sse),p) ⋄ ⍵}
+     ⍺←0.000001 ⋄ tol←⍺ ⋄ CMP←{tol>|⍺-⍵} ⋄ R←{⎕←(10↑''),⍵.((6 0⍕iter),(12 ¯5⍕ssr),p) ⋄ ⍵}
      (t ⎕NS'tol' 'CMP' 'R'){⎕←⍵ ⋄ 0∊⍺⍎⍵,'⍬':('TEST FAILED: ',⍵)⎕SIGNAL 8 ⋄ _←0}¨(↓t.⎕NL 3)⊣⍣(⍵≡'*')⊆⍵
  }

@@ -7,10 +7,11 @@
      c←(                                                ⍝ default config
          toli:1000 ⋄ tols:⎕CT ⋄ tolr:⎕CT ⋄ tolg:0.01    ⍝     tolerances
          dini:0.01 ⋄ dinc:5 ⋄ dmax:÷⎕CT                 ⍝     damping
-         p0:p ⋄ verbose:0                               ⍝     initial parameters and logging
+         p0:p ⋄ dp:⎕CT ⋄ verbose:0                      ⍝     init guess, perturbation, logging
      )
      F←{1((⊂6 0⍕↑),12 ¯5∘⍕¨⍤↓)⍵} ⋄ P←{⎕←F ⍵ ⋄ ⍵}        ⍝ format and print
-     DF←{⍕'sp',¨':',¨(⊂2 5)⌷F ⍵}                        ⍝ display form and set results
+     D←{⍕'sp',¨':',¨(⊂2 5)⌷F ⍵}                         ⍝ display form
+     J←{⍉↑⍺÷⍨(⍺⍺¨(⊂⍵)+↓↑(-⍳≢⍵)↑¨⍺)-⊆⍺⍺ ⍵}               ⍝ estimate Jacobian
 
      3=⎕NC'⍺⍺':⍺((⍺⍺{⍵.Eval←⍺⍺ ⋄ ⍵}c)∇∇)w               ⍝ ⍺⍺ is Eval function
      (1<≢w)∧~2|⎕DR⊃⌽w:⍺((⎕NS ⍺⍺(⊃⌽w))∇∇)¯1↓w            ⍝ non numeric extra argument is config
@@ -18,6 +19,7 @@
 
      c.CallBack←⊢ ⋄ c←c ⎕NS ⍺⍺ ⋄ c.dnorm←1⊣⍣(1=≢w)⊃⌽w   ⍝ default callback and actual config
      _←c ⎕VSET(↑nc)(c ⎕VGET(↑nc)c.(÷dinc dmax))         ⍝ computed defaults
-     CB←⍺{⍺⍺ c.CallBack c ⎕VSET(↑nr)⍵}P⍣(c.verbose≢0)   ⍝ callback function
-     c⊣c.⎕DF DF(c ⎕VGET↑n)(⍺∘c.Eval)LM CB p c.dnorm     ⍝ return namespace
+     C←⍺{⍺⍺ c.CallBack c ⎕VSET(↑nr)⍵}P⍣(c.verbose≢0)    ⍝ callback function
+     E←⍺∘c.Eval{(1<≡e)∧2=≢e←⍺⍺ ⍵:e ⋄ (⊃⊆e)(⍺ ⍺⍺ J ⍵)}   ⍝ eval function
+     c⊣c.⎕DF D(c ⎕VGET↑n)(c.dp∘E)LM C p c.dnorm         ⍝ return namespace
  }

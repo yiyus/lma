@@ -60,6 +60,7 @@ The left operand `f` must be a configuration namespace or a function. Configurat
 * `ddec`: Decrement of damping factor after accepted solution (default `÷dinc`)
 * `dmax`: Maximum damping factor (default `÷⎕CT`)
 * `dmin`: Minimum damping factor (default `÷dmax`)
+* `dp`: Perturbation applied to parameters for numerical estimation of the Jacobian (default `⎕CT`)
 * `verbose`: If `1`, print `iter ssr rel dnorm p` each iteration (default `0`)
 
 Configuration namespaces may also contain the functions:
@@ -67,7 +68,7 @@ Configuration namespaces may also contain the functions:
 * `Callback`: Callback function (default `⊢`)
 * `Eval`: Evaluation function
 
-The evaluation function `Eval` must return a two elements vector with the residual and Jacobian for the given set of parameters. Whenever the residual and Jacobian need to be evaluated, the function `Eval` will be called with trial parameters as right argument and left argument `X`, if given (`Eval` will be called monadically if the derived function `f LMA` is called monadically).
+The evaluation function `Eval` must return either the residuals and the Jacobian for the given set of parameters, or only the residuals. Whenever the residual and Jacobian need to be evaluated, the function `Eval` will be called with trial parameters as right argument and left argument `X`, if given (`Eval` will be called monadically if the derived function `f LMA` is called monadically). `Eval` must return either a two elements vector with the residuals in the first element and the Jacobian in the second one, or a vector of residuals, optionally enclosed. If a Jacobian is not returned, a numerical estimation is calculated.
 
 The `Callback` function will be called every iteration before checking convergence, with a solution namespace for the current guess as right argument and `X` as left argument, if given (`Callback` will be called monadically if the derived function `f LMA` is called monadically). Its return value is discarded.
 
@@ -105,4 +106,4 @@ A solution namespace is a configuration namespace with all the parameters used w
 
     R←X f LM g Y
 
-where `f` is a monadic function which returns residuals and Jacobian given set of parameters, `g` is a monadic function which takes as argument an `iter ssr rel dnorm p` vector called before every convergence check, `Y` is a two elements vector with the initial guess of parameters and normalized damping factor, and `X` is a vector defining the configuration parameters `toli tols tolr tolg dini dinc ddec dmax dmin`. The return value `R` will be an `iter ssr rel dnorm p` vector.
+where `f` is a monadic function which returns the residuals and Jacobian given a set of parameters, `g` is a monadic function which takes as argument an `iter ssr rel dnorm p` vector and gets called before every convergence check, `Y` is a two elements vector with the initial guess of parameters and normalized damping factor, and `X` is a vector with the configuration parameters `toli tols tolr tolg dini dinc ddec dmax dmin`. The return value `R` will be an `iter ssr rel dnorm p` vector.

@@ -1,4 +1,4 @@
- Test←{0::⎕EM ⎕SIGNAL ⎕EN
+ Test←{⍝0::⎕EM ⎕SIGNAL ⎕EN
      t←()
     ⍝ Tests ability to navigate sharp, narrow valleys and handle situations where the Jacobian
     ⍝ may lead to a locally rank-deficient J^T J matrix (eg. zero diagonal elements), requiring
@@ -26,6 +26,33 @@
          r,←3 0.5 CMP(R B #.LMA 1 ¯2).p                                ⍝ different quadrant
          r,←(B #.LMA(2 2)(toli:1)).ssr>(R B #.LMA 2 2).ssr             ⍝ closer to another local minimum
          r,←(B #.LMA(¯1 1)(toli:1)).ssr>(R B #.LMA ¯1 1).ssr           ⍝ closer to another local minimum
+         r
+     }
+    ⍝ Jacobian and fitting problem with outliers to test loss functions and bare LM
+     ExpDec←{A k C←⍺ ⋄ C+A×*-k×⍵}
+     ExpDecEv←{x y←⍺ ⋄ A k C←⍵ ⋄ xe←A×x×e←*-k×x ⋄ (y-⍵ ExpDec x)(⍉(-e)⍪xe⍪⍉⍪-=⍨e)}
+     y←100×@(?≢x)⊢0.1{⍵+⍺×0.5-⍨?0⍴⍨≢⍵}y0←(p←10 0.5 1)ExpDec⊢x←(⍳100)-1
+     t.ExpDecFit←{p x y y0←#.(p x y y0) ⋄ CMP←{0.1>|⍺-⍵}
+         r←p CMP(R x y0∘#.ExpDecEv #.LMA(10 0.5 1)(loss:'L2')).p                    ⍝ exact
+         r,←p CMP(R x y0∘#.ExpDecEv #.LMA(10 0.5 1)(loss:'Huber')).p                ⍝ exact
+         r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'Cauchy')).p
+         r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'SoftL1')).p
+         r,←p CMP(R x y0∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'Tukey' ⋄ scale:0.1)).p   ⍝ exact with scaling
+         r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'Welsh')).p
+         r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'Fair')).p
+         r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'Arctan')).p
+         r
+     }
+     t.ExpDecJac←{p x y←#.(p x y0)
+         d←+.×⍨,((y-#.ExpDec∘x)#.Jacobian p)-⊃⌽x y #.ExpDecEv p
+         ⎕←(16↑''),12 ¯5⍕d ⋄ 1E¯10>d
+     }
+     t.ExpDecLM←{p x y←#.(p x y0)
+         R←{⎕←(10↑''),((6 0⍕⊃),(12 ¯5⍕2∘⊃),4∘↓)⍵ ⋄ ⍵}
+         cfg←1000000 ⎕CT ⎕CT 0.01 0.01 5(÷5)(÷⎕CT)⎕CT                         ⍝ ti ts tr tg d0 di dd dx dn
+         r←p CMP⊃⌽R cfg(y-#.ExpDec∘x)#.LM⊢(5 0.1 0.5)1                    ⍝ only residuals
+         r,←p CMP⊃⌽R cfg(x y∘#.ExpDecEv)#.LM⊢(5 0.1 0.5)1                 ⍝ residual and jacobian
+         r,←p CMP⊃⌽R cfg((1,⍨⊢,(×⍨1∘↑))x y∘#.ExpDecEv)#.LM⊢(5 0.1 0.5)1   ⍝ everything
          r
      }
     ⍝ Assesses capability to follow a long, narrow, curving multi-dimensional valley, testing

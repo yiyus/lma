@@ -1,6 +1,6 @@
 :Namespace Loss
     l2←1                                               ⍝ standard squared-residual
-    L2←{(×⍨⍺×⍵)⍺}
+    L2←{(0.5×⍺××⍨⍵)⍺}
     
     huber←1.345                                        ⍝ ~95% efficiency for normal errors
     Huber←{y←⍺>|⍵ ⋄ Y←y⍨ ⋄ N←~Y                        ⍝ L2 for small residuals, lineal for large ones

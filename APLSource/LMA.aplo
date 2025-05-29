@@ -7,7 +7,7 @@
      c←(                                                ⍝ default config
          toli:1000 ⋄ tols:⎕CT ⋄ tolr:⎕CT ⋄ tolg:0.01    ⍝     tolerances
          dini:0.01 ⋄ dinc:5 ⋄ dmax:÷⎕CT ⋄ loss:'L2'     ⍝     damping and loss function
-         p0:p ⋄ pert:⎕CT ⋄ verbose:0                    ⍝     init guess, perturbation, logging
+         p0:p ⋄ pert:⎕CT*÷2 ⋄ verbose:0                 ⍝     init guess, perturbation, logging
      )
      F←{1((⊂6 0⍕↑),12 ¯5∘⍕¨⍤↓)⍵} ⋄ P←{⎕←F ⍵ ⋄ ⍵}        ⍝ format and print
      D←{⍕'sp',¨':',¨(⊂2 5)⌷F ⍵}                         ⍝ display form

@@ -1,8 +1,9 @@
  LM←{ti ts tr tg d0 di dd dx dn←⍺ ⋄ p d←⍵               ⍝ Levenberg–Marquardt algorithm
 
-     D←((dx-d0)×dn-⍨⊢)÷(d0-dn)×dx-⊢                     ⍝ damping factor normalization(λ)
-     E←⍺⍺{s←+.×⍨⊃y j←⍺⍺ ⍵ ⋄ s ⍵ y j}                    ⍝ eval(p): sum(error²), parameters, residual, jacobian
-     A←{s p y j←⍵ ⋄ s p,(t+.×j)(y+.×⍨t←⍉j)}             ⍝ accept(EG output): sum(error²), parameters, JtJ, Jty
+     D←((dx-d0)×dn-⍨⊢)÷(d0-dn)×dx-⊢ ⋄ L←1,⍨⊢,(×⍨1∘↑)    ⍝ damping factor normalization(λ) and standard loss(y)
+     E←⍺⍺{y j l w←L⍣(2=≢g)⊢g←⍺⍺ ⍵ ⋄ (+/l)⍵ y j w}       ⍝ eval(p): sum(loss), parameters, residual, jacobian
+
+     A←{s p y j w←⍵ ⋄ s p(t+.×j)(y+.×⍨t←w×⍤1⍉j)}        ⍝ accept(EG output): sum(error²), parameters, JtJ, Jty
 
      T←{                                                ⍝ try guess(λ)
          r⊢←0 ⋄ 11::dx⌊⍵×di ⋄ b←1-÷1⌈d⊢←D ⍵             ⍝     bad guess if domain error

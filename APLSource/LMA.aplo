@@ -1,11 +1,11 @@
  LMA←{⍺←⊢ ⋄ p←⊃w←⊆⍵ ⋄ 0::⎕SIGNAL ⎕EN                    ⍝ pass signals
 
      n←'d',¨'ini' 'inc' 'dec' 'max' 'min'               ⍝ damping
-     n←('isrg',⍨¨⊂'tol'),n                              ⍝ tolerances
+     n←('icrg',⍨¨⊂'tol'),n                              ⍝ tolerances
      nc←'ddec' 'dmin' ⋄ ns←'scale'                      ⍝ computed defaults
-     nr←'iter' 'ssr' 'rel' 'dnorm' 'p'                  ⍝ results
+     nr←'iter' 'cost' 'rel' 'dnorm' 'p'                 ⍝ results
      c←(                                                ⍝ default config
-         toli:1000 ⋄ tols:⎕CT ⋄ tolr:⎕CT ⋄ tolg:0.01    ⍝     tolerances
+         toli:1000 ⋄ tolc:⎕CT ⋄ tolr:⎕CT ⋄ tolg:0.01    ⍝     tolerances: iterations cost relative gain
          dini:0.01 ⋄ dinc:5 ⋄ dmax:÷⎕CT ⋄ loss:'L2'     ⍝     damping and loss function
          p0:p ⋄ pert:⎕CT*÷2 ⋄ verbose:0                 ⍝     init guess, perturbation, logging
      )
@@ -15,7 +15,8 @@
      E←{⍺←⊢ ⋄ (1<≡e)∧2=≢e←⍺⍺ ⍵:e ⋄ (⊃⊆e)(⍺ ⍺⍺ J ⍵)}     ⍝ evaluate, and estimate J if needed
      M←(2÷⍨1⊥⊢⌷⍨∘⊂⍋⌷⍨∘⊂∘⌈2÷⍨0 1+≢){1@(0∘=)⍺⍺|⍵-⍺⍺ ⍵}    ⍝ median absolute deviation
      L←{0=c.⎕NC'sigma':∇ ⍵⊣c.sigma←(M ⍵)÷0.6745          ⍝ loss function (needs stddev estimation)
-         3=⎕NC'⍺⍺':⍺⍺ ⍵ ⋄ ~(⊂⍺⍺)∊⍵⍵.⎕NL ¯3:⎕SIGNAL 6     ⍝     if no user defined must be in Loss
+         3=⎕NC'⍺⍺':c.(scale×sigma)⍺⍺ ⍵                  ⍝     user defined
+         ~(⊂⍺⍺)∊⍵⍵.⎕NL ¯3:⎕SIGNAL 6                      ⍝     if no user defined it must be in Loss
          c.(scale×sigma)(⍵⍵.⍎⍺⍺)⍵                       ⍝     scaled loss function
      }Loss
      3=⎕NC'⍺⍺':⍺((⍺⍺{⍵.Eval←⍺⍺ ⋄ ⍵}c)∇∇)w               ⍝ ⍺⍺ is Eval function

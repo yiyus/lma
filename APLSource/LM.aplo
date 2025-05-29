@@ -1,24 +1,24 @@
- LM←{ti ts tr tg d0 di dd dx dn←⍺ ⋄ p d←⍵ ⋄ ∆←ts⌈⎕CT    ⍝ Levenberg–Marquardt algorithm
+ LM←{ti tc tr tg d0 di dd dx dn←⍺ ⋄ p d←⍵               ⍝ Levenberg–Marquardt algorithm
 
-     D←((dx-d0)×dn-⍨⊢)÷(d0-dn)×dx-⊢ ⋄ L←1,⍨⊢,(×⍨1∘↑)    ⍝ damping factor normalization(λ) and standard loss(y)
-     J←{(1<|≡g)∧1<≢g←⍺⍺ ⍵:g ⋄ (⊃⊆g)(∆ ⍺⍺ Jacobian ⍵)}   ⍝ residual and (estimated if not given) jacobian(p)
-     E←⍺⍺{y j l w←L⍣(2=≢g)⊢g←⍺⍺ J ⍵ ⋄ (+/l)⍵ y j w}     ⍝ eval(p): sum(loss), parameters, residual, jacobian
-     A←{s p y j w←⍵ ⋄ s p(t+.×j)(y+.×⍨t←w×⍤1⍉j)}        ⍝ accept(EG output): sum(error²), parameters, JtJ, Jty
+     D←((dx-d0)×dn-⍨⊢)÷(d0-dn)×dx-⊢ ⋄ L←{⍵,(×⍨⊃⍵)2÷2}   ⍝ damping factor normalization(λ) and standard loss(y)
+     J←{(1<|≡g)∧1<≢g←⍺⍺ ⍵:g ⋄ (⊃⊆g)(⍺⍺ Jacobian ⍵)}     ⍝ residual and (estimated if not given) jacobian(p)
+     E←⍺⍺{y j l w←L⍣(2=≢g)⊢g←⍺⍺ J ⍵ ⋄ (+/l)⍵ y j w}     ⍝ eval(p): cost, parameters, residual, jacobian
+     A←{c p y j w←⍵ ⋄ c p(t+.×j)(y+.×⍨t←w×⍤1⍉j)}        ⍝ accept(EG output): sum(error²), parameters, JtJ, Jty
 
      T←{                                                ⍝ try guess(λ)
          r⊢←0 ⋄ 11::dx⌊⍵×di ⋄ b←1-÷1⌈d⊢←D ⍵             ⍝     bad guess if domain error
          ∆p←jy⌹jj+⍺×⍤1⊢⍵×dj←(⎕CT+b-⎕CT×b)⌈1 1⍉jj        ⍝     change of parameters with adaptive floor
-         s0←2÷⍨∆p+.×jy+∆p×⍵×dj                          ⍝     predicted error decrement
-         s1←s-⊃g←E⊢q←p-∆p                               ⍝     actual error decrement
-         r⊢←(p(-÷⍥(+.×⍨)⊣)q)⌊|s1÷s                      ⍝     relative change in parameters or residuals
-         (⎕CT>s0)∧⎕CT<s1:dx⌊⍵×di                        ⍝     if no changing, increase damping
-         (⎕CT≤s0)∧tg≥s1÷s0:dx⌊⍵×di                      ⍝     if diverging, increase damping
-         dn⌈⍵×dd⊣s p jj jy⊢←A g                         ⍝     accept change, decrease damping
+         c0←2÷⍨∆p+.×jy+∆p×⍵×dj                          ⍝     predicted error decrement
+         c1←c-⊃g←E⊢q←p-∆p                               ⍝     actual error decrement
+         r⊢←(p(-÷⍥(+.×⍨)⊣)q)⌊|c1÷c                      ⍝     relative change in parameters or residuals
+         (⎕CT>c0)∧⎕CT<c1:dx⌊⍵×di                        ⍝     if no changing, increase damping
+         (⎕CT≤c0)∧tg≥c1÷c0:dx⌊⍵×di                      ⍝     if diverging, increase damping
+         dn⌈⍵×dd⊣c p jj jy⊢←A g                         ⍝     accept change, decrease damping
      }
      C←⍵⍵{                                              ⍝ convergence check(λ_prev, λ)
-         _←⍺⍺(i⊢←i+1)s r d p                            ⍝     call user function
-         (ti<i)∨(dx∧.=⍺ ⍵)∨(ts>s)∨(r>0)∧tr>r            ⍝     iterations, max damping, residual, not changing
+         _←⍺⍺(i⊢←i+1)c r d p                            ⍝     call user function
+         (ti<i)∨(dx∧.=⍺ ⍵)∨(tc>c)∨(r>0)∧tr>r            ⍝     iterations, max damping, residual, not changing
      }
-     i r←0 ⋄ _←⍵⍵ i s r d p⊣s p jj jy←A E p             ⍝ init
-     i s r d p⊣(∘.=⍨⍳≢p)T⍣C{11::dx ⋄ D⍣¯1⊢⍵}d           ⍝ return iterations, ssr, change, norm damping, parameters
+     i r←0 ⋄ _←⍵⍵ i c r d p⊣c p jj jy←A E p             ⍝ init
+     i c r d p⊣(∘.=⍨⍳≢p)T⍣C{11::dx ⋄ D⍣¯1⊢⍵}d           ⍝ iterations, cost, change, norm damping, parameters
  }

@@ -1,7 +1,7 @@
  LM←{ti ts tr tg d0 di dd dx dn←⍺ ⋄ p d←⍵ ⋄ ∆←ts⌈⎕CT    ⍝ Levenberg–Marquardt algorithm
 
      D←((dx-d0)×dn-⍨⊢)÷(d0-dn)×dx-⊢ ⋄ L←1,⍨⊢,(×⍨1∘↑)    ⍝ damping factor normalization(λ) and standard loss(y)
-     J←{(1<|≡g)∧1<≢g←⍺⍺ ⍵:g ⋄ (⊃⊆g)(∆ ⍺⍺ Jacobian ⍵)}    ⍝ residual and (estimated if not given) jacobian(p)
+     J←{(1<|≡g)∧1<≢g←⍺⍺ ⍵:g ⋄ (⊃⊆g)(∆ ⍺⍺ Jacobian ⍵)}   ⍝ residual and (estimated if not given) jacobian(p)
      E←⍺⍺{y j l w←L⍣(2=≢g)⊢g←⍺⍺ J ⍵ ⋄ (+/l)⍵ y j w}     ⍝ eval(p): sum(loss), parameters, residual, jacobian
      A←{s p y j w←⍵ ⋄ s p(t+.×j)(y+.×⍨t←w×⍤1⍉j)}        ⍝ accept(EG output): sum(error²), parameters, JtJ, Jty
 

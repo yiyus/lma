@@ -36,7 +36,7 @@ Robust loss functions provide mechanisms to mitigate the effect of outliers in f
 * **L1-Soft** Smooth approximation of $L_1$ loss that behaves like $L_2$ for small residuals
 * **Tukey** Redescending M-estimator that completely rejects extreme outliers (but it may lead to convergence issues if scaling is not chosen well)
 * **Welsh** Another redescending M-estimator, smoother than Tukey's in its rejection
-* **Fair** Less sensitive to large errors than L2, but not redescending
+* **Fair** Less sensitive to large errors than $L_2$, but not redescending
 * **Arctan** Limits maximum loss of single residuals
 
 ### Normalized damping factor
@@ -80,8 +80,8 @@ The left operand `f` must be a configuration namespace or a function. Configurat
 * `ddec`: Decrement of damping factor after accepted solution (default `÷dinc`)
 * `dmax`: Maximum damping factor (default `÷⎕CT`)
 * `dmin`: Minimum damping factor (default `÷dmax`)
-* `dp`: Perturbation applied to parameters for numerical estimation of the Jacobian (default `⎕CT`)
-* `loss`: Choice of loss function (default `L2`, also `Huber` `Cauchy` `L1Soft` `Tukey` `Welsh` `Fair` `Arctan` or monadic function)
+* `pert`: Relative perturbation applied to parameters for numerical estimation of the Jacobian (default `⎕CT`)
+* `loss`: Choice of loss function: `L2` `Huber` `Cauchy` `L1Soft` `Tukey` `Welsh` `Fair` `Arctan` or monadic function (default `L2`)
 * `scale`: Scale factor passed as left argument to loss function (default for 95% efficiency in robust loss functions)
 * `verbose`: If `1`, print `iter ssr rel dnorm p` each iteration (default `0`)
 
@@ -90,7 +90,7 @@ Configuration namespaces may also contain the functions:
 * `Callback`: Callback function (default `⊢`)
 * `Eval`: Evaluation function
 
-The evaluation function `Eval` must return either the residuals and the Jacobian for the given set of parameters, or only the residuals. Whenever the residual and Jacobian need to be evaluated, the function `Eval` will be called with trial parameters as right argument and left argument `X`, if given (`Eval` will be called monadically if the derived function `f LMA` is called monadically). `Eval` must return either a two elements vector with the residuals in the first element and the Jacobian in the second one, or a vector of residuals, enclosed if they are not simple scalars. If a Jacobian is not returned, a numerical estimation is calculated evaluating the residual function after applying small perturbations to the parameters (as defined by `dp`, which can be a scalar or a vector).
+The evaluation function `Eval` must return either the residuals and the Jacobian for the given set of parameters, or only the residuals. Whenever the residual and Jacobian need to be evaluated, the function `Eval` will be called with trial parameters as right argument and left argument `X`, if given (`Eval` will be called monadically if the derived function `f LMA` is called monadically). `Eval` must return either a four elements vector with residuals, Jacobian, loss values and respective weights, or a two elements vector with the residuals in the first element and the Jacobian in the second one, or a vector of residuals, enclosed if they are not simple scalars. If loss values and weights are not provided, `L2` is assumed. If a Jacobian is not returned, a numerical estimation is calculated evaluating the residual function after applying small perturbations to the parameters (as defined by `pert`).
 
 The `Callback` function will be called every iteration before checking convergence, with a solution namespace for the current guess as right argument and `X` as left argument, if given (`Callback` will be called monadically if the derived function `f LMA` is called monadically). Its return value is discarded.
 
@@ -120,6 +120,10 @@ A solution namespace is a configuration namespace with all the parameters used w
 * The relative change metric `rel` is the minimum relative change between successive accepted solutions either in the the sum of squared residuals or in the parameters themselves
 
 * In addition to being used for the definition of default values, `⎕CT` is also the baseline for adaptive floor damping
+
+* The perturbation to estimate the Jacobian `pert` and the scaling factor for loss functions `scale` can be either scalar values, or vectors of the same length of respectively the parameters and the residuals
+
+* Loss functions and their respective weights, as well as their default values for the scaling parameter are defined in the namespace `Loss`
 
 
 ### `LM` Operator

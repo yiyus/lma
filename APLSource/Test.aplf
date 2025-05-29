@@ -3,7 +3,7 @@
     ⍝ Tests ability to navigate sharp, narrow valleys and handle situations where the Jacobian
     ⍝ may lead to a locally rank-deficient J^T J matrix (eg. zero diagonal elements), requiring
     ⍝ robust damping
-     t.Beale←{⎕CT←1E¯10
+     t.Beale←{
          B←{
              x y←⍵ ⋄ (1.5 2.25 2.625-x×1-y*⍳3)[(¯1+y)x ⋄ (¯1+y*2)(2×x×y) ⋄ (¯1+y*3)(3×x×y*2)]
          }
@@ -16,7 +16,7 @@
          r
      }
     ⍝ numerical approximation of the Jacobian
-     t.BealeNum←{⎕CT←1E¯10
+     t.BealeNum←{
          B←{
              x y←⍵ ⋄ (1.5 2.25 2.625-x×1-y*⍳3)
          }

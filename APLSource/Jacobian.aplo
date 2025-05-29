@@ -1,1 +1,3 @@
- Jacobian←{⍺←⎕CT ⋄ ⍉↑⍺÷⍨(⍺⍺¨(⊂⍵)+↓↑(-⍳≢⍵)↑¨⍺)-⊆⍺⍺ ⍵}
+ Jacobian←{⍺←⎕CT ⋄ a←⍺×1@(0∘=)|⍵                        ⍝ Jacobian matrix of ⍺⍺ at ⍵ applying perturbation ⍺
+     ⍉↑⍺÷⍨(⍺⍺¨(⊂⍵)+↓↑(-⍳≢⍵)↑¨⍺)-⊆⍺⍺ ⍵                   ⍝     finite-differences method
+ }

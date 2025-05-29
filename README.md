@@ -8,13 +8,13 @@ The LMA method interpolates between the more aggressive Gauss-Newton algorithm a
 
 It is an iterative algorithm. Every iteration, the residual and the Jacobian are calculated for a given set of parameters $p$. Then a new guess $p-\Delta p$ is calculated, such that:
 
-$$(J^T J + \lambda D)\Delta p = J^T y$$
+$$(J^T W J + \lambda D)\Delta p = J^T W y$$
 
-where $J$ is the Jacobian ($J_{ij}=\partial y_i / \partial p_j$), $D$ is a diagonal matrix such that $D_{kk} = \max(\epsilon(\lambda), (J^T J)_{kk})$ with $\epsilon(\lambda)$ the damping floor (dependent on the damping factor), $y$ is the residual, and $\lambda$ is the damping factor. The damping factor determines how much the next guess approximates the prediction of the Gauss-Newton algorithm (lower damping factors) or the gradient descent methods (higher damping factors), in effect defining a trust-region.
+where $J$ is the Jacobian ($J_{ij}=\partial y_i / \partial p_j$), $W$ is a weight matrix depending on the choice of loss function, $D$ is a diagonal matrix such that $D_{kk} = \max(\epsilon(\lambda), (J^T W J)_{kk})$ with $\epsilon(\lambda)$ the damping floor (dependent on the damping factor), $y$ is the residual, and $\lambda$ is the damping factor. The damping factor determines how much the next guess approximates the prediction of the Gauss-Newton algorithm (lower damping factors) or the gradient descent methods (higher damping factors), in effect defining a trust-region.
 
 For this new guess, the predicted error reduction is calculated as:
 
-$$\Delta s_p = \frac{1}{2}(\Delta p^T J^T y + \lambda \Delta p^T D \Delta p)$$
+$$\Delta s_p = \frac{1}{2}(\Delta p^T J^T W y + \lambda \Delta p^T D \Delta p)$$
 
 If the ratio of the actual error reduction calculated during the next iteration with respect to this prediction is above a defined limit, the current guess is accepted and the damping factor is decreased. Else, the new guess is rejected and the damping factor is increased.
 
@@ -24,6 +24,20 @@ The algorithm finishes once one of these conditions is met, returning the last a
 * Residual below specified tolerance
 * Relative change in parameters or residual below specified tolerance
 * Stagnation with maximum damping factor
+
+### Choice of loss function
+
+The standard $L_2$ loss function calculates the loss as the square of the residual. Its corresponding weight matrix is the identity. Moreover, if an individual scaling factor is defined for each residual, this loss function can be used for the solution of *weighted least-squares* problems.
+
+Robust loss functions provide mechanisms to mitigate the effect of outliers in fitting data:
+
+* **Huber** Equivalent to $L_2$ for small residuals and linear for larger residuals
+* **Cauchy** Strongly down-weights large outliers
+* **L1-Soft** Smooth approximation of $L_1$ loss that behaves like $L_2$ for small residuals
+* **Tukey** Redescending M-estimator that completely rejects extreme outliers (but it may lead to convergence issues if scaling is not chosen well)
+* **Welsh** Another redescending M-estimator, smoother than Tukey's in its rejection
+* **Fair** Less sensitive to large errors than L2, but not redescending
+* **Arctan** Limits maximum loss of single residuals
 
 ### Normalized damping factor
 
@@ -43,6 +57,12 @@ This adaptive mechanism ensures that while a very low floor is used during optim
 
 ## Usage
 
+### ` Jacobian` Operator
+
+    R←{X}f Jacobian Y
+    
+`Jacobian` is a monadic operator that takes a monadic function `f` as left operand to return an ambivalent function. This derived function returns an estimation of the Jacobian matrix of `f`, using the method of finite differences. The right argument `Y` is the value at which the Jacobian is calculated, and the optional left argument `X` is the perturbation to apply to `Y` in the finite differences method. If `X` is not a given, `⎕CT` is used.
+
 ### `LMA` Operator
 
     R←{X}f LMA Y
@@ -61,6 +81,8 @@ The left operand `f` must be a configuration namespace or a function. Configurat
 * `dmax`: Maximum damping factor (default `÷⎕CT`)
 * `dmin`: Minimum damping factor (default `÷dmax`)
 * `dp`: Perturbation applied to parameters for numerical estimation of the Jacobian (default `⎕CT`)
+* `loss`: Choice of loss function (default `L2`, also `Huber` `Cauchy` `L1Soft` `Tukey` `Welsh` `Fair` `Arctan` or monadic function)
+* `scale`: Scale factor passed as left argument to loss function (default for 95% efficiency in robust loss functions)
 * `verbose`: If `1`, print `iter ssr rel dnorm p` each iteration (default `0`)
 
 Configuration namespaces may also contain the functions:
@@ -106,4 +128,6 @@ A solution namespace is a configuration namespace with all the parameters used w
 
     R←X f LM g Y
 
-where `f` is a monadic function which returns the residuals and Jacobian given a set of parameters, `g` is a monadic function which takes as argument an `iter ssr rel dnorm p` vector and gets called before every convergence check, `Y` is a two elements vector with the initial guess of parameters and normalized damping factor, and `X` is a vector with the configuration parameters `toli tols tolr tolg dini dinc ddec dmax dmin`. The return value `R` will be an `iter ssr rel dnorm p` vector.
+where `f` is a monadic evaluation function, `g` is a monadic function which takes as argument an `iter ssr rel dnorm p` vector and gets called before every convergence check, `Y` is a two elements vector with the initial guess of parameters and normalized damping factor, and `X` is a vector with the configuration parameters `toli tols tolr tolg dini dinc ddec dmax dmin`. The function `f` must return either the residuals (as a simple or nested vector), the residuals and the Jacobian, or the residuals, Jacobian, loss values and weights, for a set of parameters.
+
+The return value `R` is an `iter ssr rel dnorm p` vector.

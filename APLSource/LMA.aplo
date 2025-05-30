@@ -24,7 +24,7 @@
      2<≢w:⎕SIGNAL 11                                    ⍝ wrong argument
 
      c.CallBack←⊢ ⋄ c←c ⎕NS ⍺⍺ ⋄ c.dnorm←1⊣⍣(1=≢w)⊃⌽w   ⍝ default callback and actual config
-     _←c ⎕VSET⊂(⊂ns),c ⎕VGET⊂ns(Loss ⎕VGET ⎕C c.loss)   ⍝ set scale factor for loss function
+     _←c ⎕VSET⊂(ns)(c ⎕VGET⊂ns(Loss ⎕VGET ⎕C c.loss))   ⍝ set scale factor for loss function
      _←c ⎕VSET(↑nc)(c ⎕VGET(↑nc)c.(÷dinc dmax))         ⍝ other computed defaults
      CB←⍺{⍺⍺ c.CallBack c ⎕VSET(↑nr)⍵}P⍣(c.verbose≢0)   ⍝ callback function
      EV←⍺∘c.Eval{y j←⍺ ⍺⍺ E ⍵ ⋄ y j,(c.loss L)y}        ⍝ eval function

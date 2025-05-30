@@ -34,6 +34,7 @@
      y←100×@(?≢x)⊢0.1{⍵+⍺×0.5-⍨?0⍴⍨≢⍵}y0←(p←10 0.5 1)ExpDec⊢x←(⍳100)-1
      t.ExpDecFit←{p x y y0←#.(p x y y0) ⋄ CMP←{0.1>|⍺-⍵}
          r←p CMP(R x y0∘#.ExpDecEv #.LMA(10 0.5 1)(loss:'L2')).p                    ⍝ exact
+         r,←p CMP(R x y0∘#.ExpDecEv #.LMA(10 0.5 1)(loss:'L2' ⋄ scale:?(≢x)⍴0)).p   ⍝ exact (wls)
          r,←p CMP(R x y0∘#.ExpDecEv #.LMA(10 0.5 1)(loss:'Huber')).p                ⍝ exact
          r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'Cauchy')).p
          r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'SoftL1')).p
@@ -43,9 +44,11 @@
          r,←p CMP(R x y∘#.ExpDecEv #.LMA(5 0.1 0.5)(loss:'Arctan')).p
          r
      }
-     t.ExpDecJac←{p x y←#.(p x y0)
-         d←+.×⍨,((y-#.ExpDec∘x)#.Jacobian p)-⊃⌽x y #.ExpDecEv p
-         ⎕←(16↑''),12 ¯5⍕d ⋄ 1E¯10>d
+     t.ExpDecJac←{p x y←#.(p x y0) ⋄ tol←1E¯10
+         R←{⎕←(16↑''),12 ¯5⍕⍵ ⋄ tol>⍵}
+         r←R+.×⍨,((y-#.ExpDec∘x)#.Jacobian p)-⊃⌽x y #.ExpDecEv p
+         r,←R+.×⍨,(1E¯9(y-#.ExpDec∘x)#.Jacobian p)-⊃⌽x y #.ExpDecEv p
+         r
      }
      t.ExpDecLM←{p x y←#.(p x y0)
          R←{⎕←(10↑''),((6 0⍕⊃),(12 ¯5⍕2∘⊃),4∘↓)⍵ ⋄ ⍵}
@@ -73,7 +76,7 @@
          r,←1 0 0 CMP(R H #.LMA 3 4 5).p                               ⍝ away in all components
          r
      }
-    ⍝ Verifies efficiency and correctness for a linear system. Converge shoud be very fast
+    ⍝ Verifies efficiency and correctness for a linear system. Converge should be very fast
     ⍝ (1 or 2 iterations) with minimal damping, demonstrating Gauss-Newton like behavior
      t.Linear←{
          y←(A←?100 10⍴0)+.×x←⍳10 ⋄ s←R{(y-⍨A+.×⍵)A}#.LMA(?10⍴0)0 ⋄ (1=s.iter),(⍳10)CMP s.p
@@ -119,7 +122,7 @@
      }
     ⍝ Check that algorithm finishes on termination conditions
      t.Terminate←{
-         r←(R #.Rosenbrock #.LMA(0 0)(tolc:0 ⋄ tolr:0)).(iter>toli)              ⍝ number of iterations
+         r←(R #.Rosenbrock #.LMA(0 0)(toli:10)).(iter>toli)                      ⍝ number of iterations
          r,←(R #.Rosenbrock #.LMA(0 0)(tolc:0)).(rel<tolr)                       ⍝ relative change
          r,←(R #.Rosenbrock #.LMA(0 0)(tolc:0 ⋄ dmax:1000000)).((dnorm>1000000)∧rel=0)   ⍝ maximum damping
          r

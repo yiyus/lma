@@ -8,13 +8,13 @@ The LMA method interpolates between the more aggressive Gauss-Newton algorithm a
 
 $$F(p) = \sum_i \rho(y_i(p), c_i)$$
 
-where $y_i(p)$ are the components of the residuals vector $y$, and $\rho$ is a loss function which depends on the residuals and a scaling factor $c$. In the standard case ($L_2$ loss function), $$F(p)$$ is the sum of squared residuals.
+where $y_i(p)$ are the components of the residuals vector $y$, and $\rho$ is a loss function which depends on the residuals and a scaling factor $c_i$. In the standard case ($L_2$ loss function), $F(p)$ is the sum of squared residuals (and $c_i = 1$).
 
 Every iteration of the algorithm, the residuals and the Jacobian are calculated for a given set of parameters $p$. Then, a new guess $p-\Delta p$ is calculated such that:
 
 $$(J^T W J + \lambda D)\Delta p = J^T W y$$
 
-where $J$ is the Jacobian of the residuals ($J_{ij}=\partial y_i / \partial p_j$), $W$ is a weight matrix depending on the choice of loss function, $D$ is a diagonal matrix such that $D_{kk} = \max(\epsilon(\lambda), (J^T W J)_{kk})$ with $\epsilon(\lambda)$ the damping floor (dependent on the damping factor), $y$ is the residuals vector, and $\lambda$ is the damping factor. The damping factor determines how much the next guess approximates the prediction of the Gauss-Newton algorithm (lower damping factors) or the gradient descent methods (higher damping factors), in effect defining a trust-region.
+where $J$ is the Jacobian of the residuals ($J_{ij}=\partial y_i / \partial p_j$), $W$ is a weight matrix depending on the choice of loss function (the identity matrix for $L_2$), $D$ is a diagonal matrix such that $D_{kk} = \max(\epsilon(\lambda), (J^T W J)_{kk})$ with $\epsilon(\lambda)$ the damping floor (dependent on the damping factor), $y$ is the residuals vector, and $\lambda$ is the damping factor. The damping factor determines how much the next guess approximates the prediction of the Gauss-Newton algorithm (lower damping factors) or the gradient descent methods (higher damping factors), in effect defining a trust-region.
 
 For this new guess, the predicted error reduction is calculated as:
 
@@ -100,11 +100,11 @@ The function selected by the option `loss` is used to calculate the loss from th
 
 The `Callback` function will be called every iteration before checking convergence, with the current solution namespace as right argument and `X` as left argument, if given (`Callback` will be called monadically if the derived function `f LMA` is called monadically). Its return value is discarded.
 
-If `f` is a function, the result is equivalent to using as `f` a namespace with an `Eval` fuction `f`
+If `f` is a function, the result is equivalent to using as `f` a namespace with an `Eval` function `f`
 (with default values for the rest of parameters).
 
 `Y` must be a vector.
-The first element of `Y`, or `⊂Y` if `1=≡Y`, contains the initial guess for the parameters.
+The first element of `Y`, or `⊂Y` if `1=≡Y`, contains the initial guess for the solution parameters.
 If the next element of `Y` is a scalar numeric value, it is interpreted as the initial normalized damping factor.
 Additional elements of `Y` must be configuration namespaces. The final configuration parameters are obtained
 overwriting the parameters in the namespace given as left operand with those given as right argument from right to left. Default values will be used for non-defined parameters and the `Callback` function, but the `Eval` function must be defined by the user either as left operand `f` or as member of a configuration namespace.

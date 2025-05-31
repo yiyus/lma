@@ -15,16 +15,16 @@
      E←{⍺←⊢ ⋄ (1<≡e)∧2=≢e←⍺⍺ ⍵:e ⋄ (⊃⊆e)(⍺ ⍺⍺ J ⍵)}     ⍝ evaluate, and estimate J if needed
      M←(2÷⍨1⊥⊢⌷⍨∘⊂⍋⌷⍨∘⊂∘⌈2÷⍨0 1+≢){1@(0∘=)⍺⍺|⍵-⍺⍺ ⍵}    ⍝ median absolute deviation
      L←{0=c.⎕NC'sigma':∇ ⍵⊣c.sigma←(M ⍵)÷0.6745          ⍝ loss function (needs stddev estimation)
-         3=⎕NC'⍺⍺':c.(scale×sigma)⍺⍺ ⍵                  ⍝     user defined
-         ~(⊂⍺⍺)∊⍵⍵.⎕NL ¯3:⎕SIGNAL 6                      ⍝     if no user defined it must be in Loss
-         c.(scale×sigma)(⍵⍵.⍎⍺⍺)⍵                       ⍝     scaled loss function
-     }Loss
+         3=⎕NC'⍺⍺':c.(sigma×⎕VGET⊂ns 1)⍺⍺ ⍵             ⍝     user defined
+         ~(⊂⍺⍺)∊Loss.⎕NL ¯3:⎕SIGNAL 6                    ⍝     if no user defined it must be in Loss
+         c.(sigma×⍣(⍺⍺≢'L2')⊢scale)(Loss.⍎⍺⍺)⍵          ⍝     scaled loss function
+     }
      3=⎕NC'⍺⍺':⍺((⍺⍺{⍵.Eval←⍺⍺ ⋄ ⍵}c)∇∇)w               ⍝ ⍺⍺ is Eval function
      (1<≢w)∧~2|⎕DR⊃⌽w:⍺((⎕NS ⍺⍺(⊃⌽w))∇∇)¯1↓w            ⍝ non numeric extra argument is config
      2<≢w:⎕SIGNAL 11                                    ⍝ wrong argument
 
      c.CallBack←⊢ ⋄ c←c ⎕NS ⍺⍺ ⋄ c.dnorm←1⊣⍣(1=≢w)⊃⌽w   ⍝ default callback and actual config
-     _←c ⎕VSET⊂(ns)(c ⎕VGET⊂ns(Loss ⎕VGET ⎕C c.loss))   ⍝ set scale factor for loss function
+     c.scale←c ⎕VGET⊂ns(Loss ⎕VGET ⎕C c.loss)           ⍝ set scale factor for loss function
      _←c ⎕VSET(↑nc)(c ⎕VGET(↑nc)c.(÷dinc dmax))         ⍝ other computed defaults
      CB←⍺{⍺⍺ c.CallBack c ⎕VSET(↑nr)⍵}P⍣(c.verbose≢0)   ⍝ callback function
      EV←⍺∘c.Eval{y j←⍺ ⍺⍺ E ⍵ ⋄ y j,(c.loss L)y}        ⍝ eval function

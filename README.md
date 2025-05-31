@@ -61,7 +61,7 @@ This adaptive mechanism ensures that while a very low floor is used during optim
 
 ## Usage
 
-### ` Jacobian` Operator
+### `Jacobian` Operator
 
     R←{X}f Jacobian Y
     

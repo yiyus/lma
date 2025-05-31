@@ -141,3 +141,8 @@ A solution namespace is a configuration namespace including all the configuratio
 where `f` is a monadic evaluation function, `g` is a monadic function which takes as argument an `iter cost rel dnorm p` vector and gets called before every convergence check, `Y` is a two elements vector with the initial guess of parameters and normalized damping factor, and `X` is a vector with the configuration parameters `toli tolc tolr tolg dini dinc ddec dmax dmin`. The function `f` must return either the residuals (as a simple or nested vector), the residuals and the Jacobian, or the residuals, Jacobian, loss values and weights, for a set of parameters. If no Jacobian is provided, it is estimated numerically using `Jacobian` (with no left argument). If no loss values and weights are provided, squared residuals are used.
 
 The return value `R` is an `iter cost rel dnorm p` vector.
+
+### Tutorial
+
+See [Jupyter notebook](lma.ipynb).
+

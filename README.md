@@ -1,6 +1,6 @@
 # LMA: Levenberg-Marquardt Algorithm
 
-The Levenberg-Marquardt algorithm is an iterative procedure widely used for solving non-linear least squares problems or for finding roots of non-linear systems of equations. This implementation is designed to be robust and offer maximum flexibility, but at the same time provides sensible defaults to facilitate its usage.
+The Levenberg-Marquardt algorithm is an iterative procedure widely used for solving non-linear least squares problems or for finding roots of non-linear systems of equations. This implementation is designed to be robust and offer maximum flexibility, but at the same time provide maximum convenience to the user.
 
 ## Introduction
 
@@ -20,7 +20,7 @@ For this new guess, the predicted error reduction is calculated as:
 
 $$\Delta s_p = \frac{1}{2}(\Delta p^T J^T W y + \lambda \Delta p^T D \Delta p)$$
 
-If the ratio of the actual error reduction calculated during the next iteration with respect to this prediction is above a defined limit, the current guess is accepted and the damping factor is decreased. Else, the new guess is rejected and the damping factor is increased.
+If the ratio of the actual error reduction calculated during the next iteration with respect to this prediction is above a defined limit, the new guess is accepted and the damping factor is decreased. Else, the new guess is rejected and the damping factor is increased.
 
 The algorithm finishes once one of these conditions is met, returning the last accepted guess:
 
@@ -41,7 +41,7 @@ Robust loss functions provide mechanisms to mitigate the effect of outliers in f
 * **Tukey** Redescending M-estimator that completely rejects extreme outliers (but it may lead to convergence issues if scaling is not chosen well)
 * **Welsh** Another redescending M-estimator, smoother than Tukey's in its rejection
 * **Fair** Less sensitive to large errors than $L_2$, but not redescending
-* **Arctan** Limits maximum loss of single residuals
+* **Arctan** Limits maximum loss of individual residuals
 
 ### Normalized damping factor
 
@@ -65,7 +65,7 @@ This adaptive mechanism ensures that while a very low floor is used during optim
 
     R←{X}f Jacobian Y
     
-`Jacobian` is a monadic operator that takes a monadic function `f` as left operand to return an ambivalent function. This derived function returns an estimation of the Jacobian matrix of `f`, using the method of finite differences. The right argument `Y` is the value at which the Jacobian is calculated, and the optional left argument `X` is the relative perturbation to apply to `Y` in the finite differences method. If `X` is not a given, `⎕CT*÷2` is used.
+`Jacobian` is a monadic operator that takes a monadic function `f` as left operand to return an ambivalent function. This derived function returns an estimation of the Jacobian matrix of `f` with respect to its argument, using the method of finite differences. The right argument `Y` is the value at which the Jacobian is calculated, and the optional left argument `X` is the relative perturbation to apply to `Y` in the finite differences method. If `X` is not a given, `⎕CT*÷2` is used.
 
 ### `LMA` Operator
 
@@ -77,11 +77,11 @@ The left operand `f` must be a configuration namespace or a function. Configurat
 
 * `toli`: Maximum number of iterations (default `1E3`)
 * `tolc`: Tolerance for the cost (sum of squared residuals or loss values) (default `⎕CT`)
-* `tolr`: Tolerance for relative change, either in the solution or the residual (default `⎕CT`)
-* `tolg`: Tolerance for the gain ratio to accept or reject a step (default `1E¯2`)
+* `tolr`: Tolerance for relative change, either in the solution parameters or the cost (default `⎕CT`)
+* `tolg`: Tolerance for the gain ratio to accept or reject a guess (default `1E¯2`)
 * `dini`: Initial damping factor for `dnorm=1` (default `1E¯2`)
-* `dinc`: Increment of damping factor after rejected solution (default `5`)
-* `ddec`: Decrement of damping factor after accepted solution (default `÷dinc`)
+* `dinc`: Increment of damping factor after rejected guess (default `5`)
+* `ddec`: Decrement of damping factor after accepted guess (default `÷dinc`)
 * `dmax`: Maximum damping factor (default `÷⎕CT`)
 * `dmin`: Minimum damping factor (default `÷dmax`)
 * `pert`: Relative perturbation applied to parameters for numerical estimation of the Jacobian (default `⎕CT*÷2`)
@@ -94,7 +94,7 @@ Configuration namespaces may also contain the functions:
 * `Callback`: Callback function (default `⊢`)
 * `Eval`: Evaluation function
 
-The evaluation function `Eval` must return either the residuals and the Jacobian for the given set of solution parameters, or only the residuals. Whenever the residual and Jacobian need to be evaluated, the function `Eval` will be called with trial parameters as right argument and left argument `X`, if given (`Eval` will be called monadically if the derived function `f LMA` is called monadically). `Eval` must return either a two elements vector with the residuals in the first element and the Jacobian in the second one, or a vector of residuals, enclosed if they are not simple scalars. If a Jacobian is not returned, a numerical estimation is calculated evaluating the residual function after applying small perturbations to the parameters (as defined by `pert`).
+The evaluation function `Eval` must return either the residuals and the Jacobian for the given set of solution parameters, or only the residuals. Whenever the residual and Jacobian need to be evaluated, the function `Eval` will be called with solution parameters as right argument and left argument `X`, if given (`Eval` will be called monadically if the derived function `f LMA` is called monadically). `Eval` must return either a two elements vector with the residuals in the first element and the Jacobian in the second one, or a vector of residuals, enclosed if they are not simple scalars. If a Jacobian is not returned, a numerical estimation is calculated evaluating the residual function after applying small perturbations to the parameters (as defined by `pert`).
 
 The function selected by the option `loss` is used to calculate the loss from the residuals and scaling factor. If a function is provided by the user, it must be a dyadic function which returns the loss values and weights when given the residuals as right argument and scaling factor as left argument.
 
@@ -116,8 +116,8 @@ A solution namespace is a configuration namespace including all the configuratio
 * `cost`: Sum of loss values (squared residuals for L2)
 * `rel`: Relative change metric
 * `dnorm`: Normalized damping factor
-* `p0`: Initial guess
-* `p`: Accepted guess
+* `p0`: Initial guess of solution parameters
+* `p`: Accepted guess of solution parameters
 
 #### Notes
 
@@ -134,11 +134,11 @@ A solution namespace is a configuration namespace including all the configuratio
 
 ### `LM` Operator
 
-`LM` is a simplified version of `LMA`. It is a dyadic operator from which a dyadic function is derived. Usage:
+`LM` is a lower level version of `LMA`. It is a dyadic operator from which a dyadic function is derived. Usage:
 
     R←X f LM g Y
 
-where `f` is a monadic evaluation function, `g` is a monadic function which takes as argument an `iter cost rel dnorm p` vector and gets called before every convergence check, `Y` is a two elements vector with the initial guess of parameters and normalized damping factor, and `X` is a vector with the configuration parameters `toli tolc tolr tolg dini dinc ddec dmax dmin`. The function `f` must return either the residuals (as a simple or nested vector), the residuals and the Jacobian, or the residuals, Jacobian, loss values and weights, for a set of parameters. If no Jacobian is provided, it is estimated numerically using `Jacobian` (with no left argument). If no loss values and weights are provided, squared residuals are used.
+where `f` is a monadic evaluation function, `g` is a monadic function which takes as argument an `iter cost rel dnorm p` vector and gets called before every convergence check, `Y` is a two elements vector with the initial guess of parameters and normalized damping factor, and `X` is a vector with the configuration parameters `toli tolc tolr tolg dini dinc ddec dmax dmin`. The function `f` must return either the residuals (as a simple or nested vector), the residuals and the Jacobian, or the residuals, Jacobian, loss values and weights, for a set of solution parameters. If no Jacobian is provided, it is estimated numerically using `Jacobian` (with no left argument). If no loss values and weights are provided, squared residuals are used.
 
 The return value `R` is an `iter cost rel dnorm p` vector.
 

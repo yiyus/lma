@@ -52,7 +52,7 @@
      }
      t.ExpDecLM←{p x y←#.(p x y0)
          R←{⎕←(10↑''),((6 0⍕⊃),(12 ¯5⍕2∘⊃),4∘↓)⍵ ⋄ ⍵}
-         cfg←1000000 ⎕CT ⎕CT 0.01 0.01 5(÷5)(÷⎕CT)⎕CT                         ⍝ ti tc tr tg d0 di dd dx dn
+         cfg←1000 ⎕CT ⎕CT 0.01 0.01 5(÷5)(÷⎕CT)⎕CT                        ⍝ ti tc tr tg d0 di dd dx dn
          r←p CMP⊃⌽R cfg(y-#.ExpDec∘x)#.LM⊢(5 0.1 0.5)1                    ⍝ only residuals
          r,←p CMP⊃⌽R cfg(x y∘#.ExpDecEv)#.LM⊢(5 0.1 0.5)1                 ⍝ residual and jacobian
          r,←p CMP⊃⌽R cfg((1,⍨⊢,(×⍨1∘↑))x y∘#.ExpDecEv)#.LM⊢(5 0.1 0.5)1   ⍝ everything
@@ -66,13 +66,13 @@
              a b c←⍵ ⋄ m←a M b ⋄ y←(10×c-10×a T b)(10×m-1)c
              y[((50×b)÷○+.×⍨a b)(-(50×a)÷○+.×⍨a b)10 ⋄ (10×a÷m)(10×b÷m)0 ⋄ 0 0 1]
          }
-         r←1 0 0 CMP(R H #.LMA ¯1 0 0).p                                ⍝ standard starting point
-         r,←1 0 0 CMP(R H #.LMA ¯1.2 0.1 0.1).p                         ⍝ slightly perturbed
-         r,←1 0 0 CMP(R H #.LMA ¯0.9 ¯0.05 ¯0.05).p                     ⍝ in other direction
+         r←1 0 0 CMP(R H #.LMA ¯1 0 0).p                               ⍝ standard starting point
+         r,←1 0 0 CMP(R H #.LMA ¯1.2 0.1 0.1).p                        ⍝ slightly perturbed
+         r,←1 0 0 CMP(R H #.LMA ¯0.9 ¯0.05 ¯0.05).p                    ⍝ in other direction
          r,←1 0 0 CMP(R H #.LMA 0.5 ¯0.5 0.5).p                        ⍝ qualitatively different
-         r,←1 0 0 CMP(R H #.LMA ¯0.5 0.5 ¯0.5).p                        ⍝ another one
-         r,←1 0 0 CMP(R H #.LMA ¯1 0 10).p                              ⍝ far off in 3rd dimension
-         r,←1 0 0 CMP(R H #.LMA ¯1 0 ¯10).p                             ⍝ far off in 3rd dimension
+         r,←1 0 0 CMP(R H #.LMA ¯0.5 0.5 ¯0.5).p                       ⍝ another one
+         r,←1 0 0 CMP(R H #.LMA ¯1 0 10).p                             ⍝ far off in 3rd dimension
+         r,←1 0 0 CMP(R H #.LMA ¯1 0 ¯10).p                            ⍝ far off in 3rd dimension
          r,←1 0 0 CMP(R H #.LMA 3 4 5).p                               ⍝ away in all components
          r
      }
